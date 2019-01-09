@@ -1,24 +1,26 @@
 import pygame
 from pygame.locals import *
 from sys import exit
+from gameobjects.vector2 import Vector2
 
 background_image_filename = 'sushiplate.jpg'
 sprite_image_filename = 'fugu.png'
+
+# マウスの位置に段々と移動する処理
+# マウスを追従します
 
 pygame.init()
 
 screen = pygame.display.set_mode((640, 480), 0, 32)
 
 background = pygame.image.load(background_image_filename).convert()
-sprite = pygame.image.load(sprite_image_filename)
+sprite = pygame.image.load(sprite_image_filename).convert_alpha()
 
-# Our clock object
 clock = pygame.time.Clock()
 
-# X coordinate of our sprite
-x = 0.
-# Speed in pixels per second
-speed = 250.
+position = Vector2(0.0, 0.0)
+heading = Vector2()
+speed = 100
 
 while True:
     for event in pygame.event.get():
@@ -26,24 +28,14 @@ while True:
             exit()
 
     screen.blit(background, (0, 0))
-    screen.blit(sprite, (x, 100))
+    screen.blit(sprite, position)
 
     time_passed = clock.tick()
-    print(time_passed)
     time_passed_seconds = time_passed / 1000.0
 
-    #if speed <= 0:
-    #    speed = 250
-    #else:
-    #    speed -= 1
-    #print(speed)
+    destination = Vector2(pygame.mouse.get_pos()) - Vector2(sprite.get_size()) / 2
+    vector_to_mouse = Vector2.from_points(position, destination)
+    vector_to_mouse.normalize()
 
-    distance_moved = time_passed_seconds * speed
-    x += distance_moved
-    print(x)
-
-    # If the image goes off the end of the screen, move it back
-    if x > 640.:
-        x = 0.
-
+    position += vector_to_mouse * time_passed_seconds * speed
     pygame.display.update()
